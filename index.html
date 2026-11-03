@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>DON'T TOUCH THE RED - Neon Arcade Survival</title>
+  
+  <meta name="description" content="A fast-paced, addictive neon arcade survival game. Dodge red obstacles, collect golden coins, trigger Golden Fever mode, and compete for the high score!">
+  <meta name="theme-color" content="#080812">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Game Canvas -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Notification Container -->
+  <div id="toastContainer"></div>
+
+  <!-- UI Layer Over Canvas -->
+  <div id="uiLayer">
+
+    <!-- In-Game HUD -->
+    <header id="gameHud">
+      <div class="hud-panel">
+        <span class="hud-label">Score</span>
+        <span class="hud-value" id="hudScore">0</span>
+        <span style="font-family: var(--font-display); font-size: 11px; color: var(--neon-cyan); letter-spacing: 1px;">
+          BEST: <strong id="hudHighScore">0</strong>
+        </span>
+      </div>
+
+      <div class="hud-center">
+        <div class="hud-level-badge" id="hudLevel">LVL 1</div>
+        <div class="fever-bar-container" title="Adrenaline Fever Meter">
+          <div class="fever-bar" id="hudFeverBar"></div>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <div class="hud-coins-display" title="Coins Collected This Run">
+          <span>🪙</span>
+          <span id="hudCoins">0</span>
+        </div>
+        <button class="hud-icon-btn" id="btnToggleMute" title="Toggle Sound" aria-label="Toggle Sound">🔊</button>
+        <button class="hud-icon-btn" id="btnPause" title="Pause Game" aria-label="Pause Game">⏸️</button>
+      </div>
+    </header>
+
+    <!-- Start Screen Layer -->
+    <section class="screen-layer active" id="startScreen">
+      <div class="start-container">
+        
+        <div class="game-title-group">
+          <div class="game-subhead">NEON ARCADE SURVIVAL</div>
+          <h1 class="game-title">DON'T TOUCH THE <span class="title-red">RED</span></h1>
+        </div>
+
+        <!-- Daily Challenge Card -->
+        <div class="daily-challenge-card" id="btnDailyChallenge" role="button" tabindex="0">
+          <div class="daily-left">
+            <div class="daily-badge">⚡ DAILY CHALLENGE</div>
+            <div class="daily-date" id="dailyDate">Today's Run</div>
+            <div class="daily-status" id="dailyStatus">Unplayed Today! +30% Speed, 2x Coins</div>
+          </div>
+          <div class="daily-play-arrow">▶</div>
+        </div>
+
+        <!-- High Score & Coins Pill -->
+        <div class="stats-overview">
+          <div class="stat-pill">
+            <span class="stat-icon">🏆</span>
+            <span>BEST: <strong id="startHighScore">0</strong></span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-icon">🪙</span>
+            <span>COINS: <strong id="startCoins">0</strong></span>
+          </div>
+        </div>
+
+        <!-- Play Button -->
+        <button class="btn-primary" id="btnStartGame">
+          <span>PLAY NOW</span>
+          <span style="font-size: 14px; opacity: 0.8;">[SPACE]</span>
+        </button>
+
+        <!-- Secondary Menu Grid -->
+        <nav class="menu-actions-grid">
+          <button class="btn-secondary" id="btnOpenLeaderboard" title="View High Scores">
+            <span>🏆</span> Top 5
+          </button>
+          <button class="btn-secondary" id="btnOpenAchievements" title="View Badges">
+            <span>🎖️</span> Badges
+          </button>
+          <button class="btn-secondary" id="btnOpenSkins" title="Unlock Ball Skins">
+            <span>🎨</span> Skins
+          </button>
+          <button class="btn-secondary" id="btnOpenSettings" title="Game Settings">
+            <span>⚙️</span> Config
+          </button>
+        </nav>
+
+        <p class="control-tips">
+          🖱️ Mouse / 👆 Touch Drag / ⌨️ WASD keys to dodge.<br>
+          Collect 🪙 gold & dodge close for near-miss fever!
+        </p>
+
+      </div>
+    </section>
+
+    <!-- Game Over Screen Layer -->
+    <section class="screen-layer" id="gameOverScreen">
+      <div class="gameover-container">
+        
+        <div class="gameover-header">
+          <div class="record-badge hidden" id="goNewRecordBadge">🔥 NEW RECORD! 🔥</div>
+          <h2 class="gameover-title">YOU TOUCHED THE RED!</h2>
+        </div>
+
+        <!-- Funny Roast Box -->
+        <div class="roast-box" id="goRoast">
+          "Did the red obstacle offend you, or did you just want to hug it?"
+        </div>
+
+        <!-- Final Score Display -->
+        <div class="score-highlight">
+          <span class="hud-label">FINAL SCORE</span>
+          <span class="score-big" id="goScore">0</span>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-box">
+            <span class="stat-box-val" id="goTime">0.0s</span>
+            <span class="stat-box-lbl">Survived</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-box-val" id="goCoins">0</span>
+            <span class="stat-box-lbl">Coins</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-box-val" id="goNearMisses">0</span>
+            <span class="stat-box-lbl">Near Miss</span>
+          </div>
+        </div>
+
+        <!-- Motivational Challenge -->
+        <div class="motivation-text" id="goMotivation">
+          Can you beat your best score?
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="gameover-buttons">
+          <button class="btn-primary" id="btnRestart">
+            <span>PLAY AGAIN</span>
+            <span style="font-size: 13px; opacity: 0.8;">[SPACE]</span>
+          </button>
+          
+          <div class="gameover-secondary-row">
+            <button class="btn-secondary" id="btnShareScore">
+              <span>📤</span> Share Score
+            </button>
+            <button class="btn-secondary" id="btnBragCard">
+              <span>🖼️</span> Brag Card
+            </button>
+          </div>
+
+          <button class="btn-secondary" id="btnGoHome" style="border: none; background: transparent; color: var(--text-muted);">
+            ← Main Menu
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Pause Overlay Layer -->
+    <section class="screen-layer" id="pauseOverlay">
+      <div class="pause-container">
+        <h3 class="pause-title">GAME PAUSED</h3>
+        <button class="btn-primary" id="btnResume">RESUME</button>
+        <button class="btn-secondary" id="btnQuitToMenu">QUIT TO MENU</button>
+      </div>
+    </section>
+
+    <!-- Leaderboard Modal -->
+    <div class="modal-overlay" id="leaderboardModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">🏆 High Score Leaderboard</div>
+          <button class="modal-close-btn" aria-label="Close modal">&times;</button>
+        </div>
+        <div class="modal-body" id="leaderboardList">
+          <!-- Populated dynamically by UI.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Achievements Modal -->
+    <div class="modal-overlay" id="achievementsModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">🎖️ Achievements & Badges</div>
+          <button class="modal-close-btn" aria-label="Close modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="achievements-grid" id="achievementsGrid">
+            <!-- Populated dynamically by UI.js -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skins Modal -->
+    <div class="modal-overlay" id="skinsModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">🎨 Neon Ball Skins</div>
+          <button class="modal-close-btn" aria-label="Close modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="skins-grid" id="skinsGrid">
+            <!-- Populated dynamically by UI.js -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">⚙️ Game Settings</div>
+          <button class="modal-close-btn" aria-label="Close modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="settings-group">
+            <div class="setting-item">
+              <span class="setting-label">Sound Effects</span>
+              <input type="checkbox" id="settingSound" checked style="width: 20px; height: 20px; cursor: pointer;">
+            </div>
+            <div class="setting-item">
+              <span class="setting-label">Touch Control Mode</span>
+              <select id="settingControl" class="setting-select">
+                <option value="offset">Smart Touch Offset (Thumb below ball)</option>
+                <option value="direct">Direct Touch Follow</option>
+                <option value="relative">Relative Touch Drag</option>
+              </select>
+            </div>
+            <div class="setting-item">
+              <span class="setting-label">Screen Shake FX</span>
+              <input type="checkbox" id="settingShake" checked style="width: 20px; height: 20px; cursor: pointer;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Brag Card Modal -->
+    <div class="modal-overlay" id="bragModal">
+      <div class="modal-content" style="max-width: 640px;">
+        <div class="modal-header">
+          <div class="modal-title">🖼️ Official Survival Card</div>
+          <button class="modal-close-btn" aria-label="Close modal">&times;</button>
+        </div>
+        <div class="modal-body" style="align-items: center;">
+          <div id="bragCardImgContainer" style="width: 100%; text-align: center;"></div>
+          <button class="btn-primary" id="btnDownloadBragCard" style="margin-top: 10px;">
+            📥 Download Brag Card
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts in dependency order -->
+  <script src="js/storage.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/obstacles.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
